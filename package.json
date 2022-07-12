@@ -1,5 +1,5 @@
 {
-  "name": "react",
+  "name": "railway-bun-react",
   "version": "0.0.47",
   "dependencies": {
     "react": "^17.0.2",
