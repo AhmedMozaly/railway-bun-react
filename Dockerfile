@@ -1,17 +1,23 @@
-FROM frolvlad/alpine-glibc:glibc-2.30
+ARG BUN_VERSION='0.1.3'
 
-WORKDIR /bun
-RUN apk --no-cache add curl bash libstdc++ ca-certificates && \
-    curl -fsSL -o "/bun/bun.zip" "https://github.com/oven-sh/bun/releases/download/bun-v0.1.3/bun-linux-x64.zip" && \
-    unzip -d /bun -q -o "/bun/bun.zip" && \
-    mv /bun/bun-linux-x64/bun /usr/local/bin/bun && \
-    chmod 777 /usr/local/bin/bun && \
-    rm "/bun/bun.zip" && \
-    apk del curl bash
+FROM alpine:latest as builder
 
-WORKDIR /app
-RUN addgroup --gid 101 --system appuser && adduser --uid 101 --system appuser && chown -R 101:101 /app && chmod -R g+w /app
-USER appuser
-COPY . ./
+WORKDIR /tmp
 
-CMD ["bun", "dev"]
+RUN apk --update add curl unzip
+
+ARG BUN_VERSION
+
+RUN curl -LO https://github.com/Jarred-Sumner/bun/releases/download/bun-v${BUN_VERSION}/bun-linux-x64.zip
+
+RUN unzip bun-linux-x64.zip
+
+FROM gcr.io/distroless/base-debian11
+
+COPY --from=builder /tmp/bun-linux-x64/bun .
+
+ADD . .
+
+CMD ["/bun", "dev"]
+
+EXPOSE 5000
