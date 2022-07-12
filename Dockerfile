@@ -4,8 +4,6 @@ FROM alpine:latest as builder
 
 WORKDIR /tmp
 
-RUN wsl --update
-
 RUN apk --update add curl unzip
 
 ARG BUN_VERSION
